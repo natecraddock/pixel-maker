@@ -1,3 +1,5 @@
+#BABIES
+
 bl_info = {
     "name": "Pixel Maker",
     "author": "Nathan Craddock",
