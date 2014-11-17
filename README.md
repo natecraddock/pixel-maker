@@ -1,4 +1,5 @@
 Installation
+
 Click the Download ZIP button that is located on the right.  Extract the PixelMaker.py file from the archive.
 Import into Blender just like you would a normal Addon.
 
