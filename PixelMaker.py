@@ -1,5 +1,3 @@
-#BABIES
-
 bl_info = {
     "name": "Pixel Maker",
     "author": "Nathan Craddock",
@@ -27,29 +25,36 @@ class pixelMakerPanel(bpy.types.Panel):
         layout = self.layout
         
         row = layout.row()
+        row.prop(context.scene, "pixel_method_type")
+        row = layout.row()
         row.prop(context.scene, "pixel_img_path", icon = 'FILE_IMAGE')
-        row = layout.row()
-        row.prop(context.scene, "pixel_object_type")
-        layout.separator()
+        
+        if context.scene.pixel_method_type == "cubes":
+            row = layout.row()
+            row.prop(context.scene, "pixel_object_type")
+            layout.separator()
 
-        split = layout.split()
-        
-        # Column 1
-        col = split.column(align = True)
-        col.label(text = "Height Mapping:")
-        col.prop(context.scene, "pixel_color_height")
-        col.prop(context.scene, "pixel_color_height_amount")
-        layout.separator()
-        
-        # Column 2
-        col = split.column(align = True)
-        col.label(text = "Other:")
-        col.prop(context.scene, "pixel_join_cubes")
-        col.prop(context.scene, "pixel_z_var")
-        layout.separator()
-        
-        row = layout.row()
-        row.operator("object.make_pixel")
+            split = layout.split()
+            
+            # Column 1
+            col = split.column(align = True)
+            col.label(text = "Height Mapping:")
+            col.prop(context.scene, "pixel_color_height")
+            col.prop(context.scene, "pixel_color_height_amount")
+            layout.separator()
+            
+            # Column 2
+            col = split.column(align = True)
+            col.label(text = "Other:")
+            col.prop(context.scene, "pixel_join_cubes")
+            col.prop(context.scene, "pixel_z_var")
+            layout.separator()
+            
+            row = layout.row()
+            row.operator("object.make_pixel")
+        elif context.scene.pixel_method_type == "particles":
+            row = layout.row()
+            row.label(text = "Babies")
         
 class pixelMaker(bpy.types.Operator):
     """Run the Pixel Maker Addon"""
@@ -212,19 +217,31 @@ class pixelMaker(bpy.types.Operator):
 def register():
     bpy.utils.register_class(pixelMaker)
     bpy.utils.register_class(pixelMakerPanel)
+    
+    bpy.types.Scene.pixel_method_type = bpy.props.EnumProperty(name = "Method", items = [("cubes", "Cubes", "Use the cubes method (Smaller images)"), ("particles", "Particles", "Use the particles method (Larger images)")], default = "cubes")
+    
+    # These are for the cube method
     bpy.types.Scene.pixel_join_cubes = bpy.props.BoolProperty(name = "Join Cubes", description = "Join the cubes?", default = False)
     bpy.types.Scene.pixel_object_type = bpy.props.EnumProperty(name = "Object", items = [("cube", "Cube", "Make it a cube"), ("cylinder", "Cylinder", "Make it a default cylinder"), ("cylinder_6", "Cylinder 6 Vertices", "Make it a 6 vertex cylinder"), ("cylinder_8", "Cylinder 8 Vertices", "Make it an 8 vertex cylinder")], default = "cube")
     bpy.types.Scene.pixel_color_height = bpy.props.BoolProperty(name = "Color Height Mapping", description = "Convert pixel color to height", default = False)
     bpy.types.Scene.pixel_color_height_amount = bpy.props.IntProperty(name = "Amount", description = "How much to effect the height based on color", default = 2, min = 1, max = 16)
     bpy.types.Scene.pixel_z_var = bpy.props.IntProperty(name = "Height Variation", description = "How much to vary the height. (0 = none)", default = 0, min = 0, max = 100)
     bpy.types.Scene.pixel_img_path = bpy.props.StringProperty(name="Image", default = "", description = "Navigate to an image file.", subtype = 'FILE_PATH')
+    
+    # These are for the particle method
 
 def unregister():
     bpy.utils.unregister_class(pixelMaker)
     bpy.utils.unregister_class(pixelMakerPanel)
+    
+    del bpy.types.Scene.pixel_method_type
+    
+    # Cube method
     del bpy.types.Scene.pixel_join_cubes
     del bpy.types.Scene.pixel_object_type
     del bpy.types.Scene.pixel_color_height
     del bpy.types.Scene.pixel_color_height_amount
     del bpy.types.Scene.pixel_z_var
     del bpy.types.Scene.pixel_img_path
+    
+    # Particle method
