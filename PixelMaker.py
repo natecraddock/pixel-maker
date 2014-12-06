@@ -10,6 +10,7 @@ bl_info = {
 }
 
 import bpy
+import bmesh
 import random
 
 class pixelMakerPanel(bpy.types.Panel):
@@ -37,13 +38,14 @@ class pixelMakerPanel(bpy.types.Panel):
         col.label(text = "Height Mapping:")
         col.prop(context.scene, "pixel_color_height")
         col.prop(context.scene, "pixel_color_height_amount")
+        col.prop(context.scene, "pixel_z_var")
         layout.separator()
         
         # Column 2
         col = split.column(align = True)
         col.label(text = "Other:")
         col.prop(context.scene, "pixel_join_cubes")
-        col.prop(context.scene, "pixel_z_var")
+        col.prop(context.scene, "pixel_z_depth")
         layout.separator()
         
         row = layout.row()
@@ -106,7 +108,7 @@ class pixelMaker(bpy.types.Operator):
                     # Calls the createCubes Function with information from the loops and pixel color
                     createCubes(x * 2, y * 2, color)
             
-            # This links all the objects that were created to the scene. Faster than any bpy.ops method            
+            # This links all the objects that were created to the scene.           
             for ob in obs:
                 bpy.context.scene.objects.link(ob)
             bpy.context.scene.update()
@@ -121,7 +123,41 @@ class pixelMaker(bpy.types.Operator):
                     bpy.data.objects[name].select = True
                 
                 bpy.context.scene.objects.active = obs[0]
+                
                 bpy.ops.object.join()
+                bpy.ops.object.editmode_toggle()
+                bpy.ops.mesh.select_all(action='TOGGLE')
+
+                TOL = 0.05
+
+                obj = bpy.context.active_object
+                mesh = obj.data
+                bm = bmesh.from_edit_mesh(mesh)
+
+                faces = [(face.calc_center_median(), face) 
+                            for face in bm.faces]
+
+                #yay, key instead of cmp... 
+                #no tolerance, precision problems -> round
+                faces.sort(key=lambda t: round(t[0].x, 1))
+                faces.sort(key=lambda t: round(t[0].y, 1)) 
+                faces.sort(key=lambda t: round(t[0].z, 1)) 
+
+                #find double faces
+                for index in range(1, len(faces)):
+                    prev = faces[index - 1]
+                    current = faces[index]
+                    if all(abs(prev[0][j] - current[0][j]) < TOL for j in range(3)):
+                        current[1].select = True
+                        prev[1].select = True
+
+                bmesh.update_edit_mesh(mesh, False, False)
+                bpy.ops.mesh.delete(type = 'FACE')
+                bpy.ops.mesh.select_all(action='TOGGLE')
+                bpy.ops.mesh.remove_doubles()
+                bpy.ops.transform.resize(value = (1, 1, context.scene.pixel_z_depth))
+                
+                bpy.ops.object.editmode_toggle()
         
         def createCubes(x, y, col):
             # Sets the alpha variable to the alpha of the color.
@@ -168,7 +204,6 @@ class pixelMaker(bpy.types.Operator):
             # Then it creates materials for whatever engine it is in.
             
             if bpy.context.scene.render.engine == 'CYCLES':
-            
                 # Make a Cycles material
                 key = repr(color)
                 if key in self.cyclesMaterialMap:
@@ -210,12 +245,13 @@ class pixelMaker(bpy.types.Operator):
 def register():
     bpy.utils.register_class(pixelMaker)
     bpy.utils.register_class(pixelMakerPanel)
-    bpy.types.Scene.pixel_join_cubes = bpy.props.BoolProperty(name = "Join Cubes", description = "Join the cubes?", default = False)
+    bpy.types.Scene.pixel_join_cubes = bpy.props.BoolProperty(name = "Join Objects", description = "Join the cubes?", default = False)
     bpy.types.Scene.pixel_object_type = bpy.props.EnumProperty(name = "Object", items = [("cube", "Cube", "Make it a cube"), ("cylinder", "Cylinder", "Make it a default cylinder"), ("cylinder_6", "Cylinder 6 Vertices", "Make it a 6 vertex cylinder"), ("cylinder_8", "Cylinder 8 Vertices", "Make it an 8 vertex cylinder")], default = "cube")
     bpy.types.Scene.pixel_color_height = bpy.props.BoolProperty(name = "Color Height Mapping", description = "Convert pixel color to height", default = False)
     bpy.types.Scene.pixel_color_height_amount = bpy.props.IntProperty(name = "Amount", description = "How much to effect the height based on color", default = 2, min = 1, max = 16)
     bpy.types.Scene.pixel_z_var = bpy.props.IntProperty(name = "Height Variation", description = "How much to vary the height. (0 = none)", default = 0, min = 0, max = 100)
     bpy.types.Scene.pixel_img_path = bpy.props.StringProperty(name="Image", default = "", description = "Navigate to an image file.", subtype = 'FILE_PATH')
+    bpy.types.Scene.pixel_z_depth = bpy.props.IntProperty(name = "Z Depth", description = "How tall", default = 1)
 
 def unregister():
     bpy.utils.unregister_class(pixelMaker)
