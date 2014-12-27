@@ -8,6 +8,7 @@ I recommend an image less than 100x100, because with 10,000 objects, Blender get
 If the chosen image has transparency, any of the pixels that are even slightly transparent will not become a cube.
 
 Play around with the options:
+
 1) Object:
 This option lets you choose different objects to add instead of a basic cube.
 
