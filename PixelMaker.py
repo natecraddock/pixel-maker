@@ -158,6 +158,13 @@ class pixelMaker(bpy.types.Operator):
                 bpy.ops.transform.resize(value = (1, 1, context.scene.pixel_z_depth))
                 
                 bpy.ops.object.editmode_toggle()
+                
+                bpy.ops.object.origin_set(type='GEOMETRY_ORIGIN')
+                
+                bpy.ops.view3d.snap_cursor_to_center()
+
+                bpy.ops.view3d.snap_selected_to_cursor(use_offset=False)
+
         
         def createCubes(x, y, col):
             # Sets the alpha variable to the alpha of the color.
