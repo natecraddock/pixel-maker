@@ -1,5 +1,5 @@
 bl_info = {
-    "name": "Pixel Maker",
+    "name": "Pixel Maker hair",
     "author": "Nathan Craddock",
     "version": (1, 0, 0),
     "blender": (2, 7, 2),
