@@ -2,7 +2,7 @@ bl_info = {
     "name": "Pixel Maker",
     "author": "Nathan Craddock",
     "version": (1, 0, 0),
-    "blender": (2, 7, 2),
+    "blender": (2, 7, 4),
     "location": "Object Mode >> Tool Shelf >> Tools Tab",
     "description": "Converts each pixel of an image to a cube of the same color, with some options.",
     "tracker_url": "https://docs.google.com/forms/d/1dOvU7ZuXsDousyM8tiZlN-HCeKyn2ygI8cRX2aLgnKg/viewform?usp=send_form",
