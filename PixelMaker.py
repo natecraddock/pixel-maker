@@ -1,5 +1,5 @@
 """
-Easy Audio Visualizer - Blender Audio Visualizer
+Pixel Maker - Images to Objects Addon
 Copyright (C) 2015 Nathan Craddock
 
 This program is free software: you can redistribute it and/or modify
@@ -113,10 +113,12 @@ class pixelMaker(bpy.types.Operator):
         
         obs = []
         ob = bpy.context.object
-            
+		
+		def large_images(path):
+			
         
         def setup(path):                        
-            # Load the image from the users chosen file path into Blender. Also assign to a var.
+            # Load the image from the users chosen file path into Blender. Also assign to a variable.
             image = bpy.data.images.load(path)
             
             # Accessing some data from the chosen image
