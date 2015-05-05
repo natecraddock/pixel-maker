@@ -1,6 +1,6 @@
 """
 Easy Audio Visualizer - Blender Audio Visualizer
-Copyright (C) 2014 Nathan Craddock
+Copyright (C) 2015 Nathan Craddock
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,10 +16,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+"""
+Version  2.0.0
+Added the ability to use images of any size with an algorithm
+to break large images into chunks.
+"""
+
 bl_info = {
     "name": "Pixel Maker",
     "author": "Nathan Craddock",
-    "version": (1, 0, 0),
+    "version": (2, 0, 0),
     "blender": (2, 7, 4),
     "location": "Object Mode >> Tool Shelf >> Tools Tab",
     "description": "Converts each pixel of an image to a cube of the same color, with some options.",
@@ -45,6 +51,8 @@ class pixelMakerPanel(bpy.types.Panel):
         
         row = layout.row()
         row.prop(context.scene, "pixel_img_path", icon = 'FILE_IMAGE')
+        row = layout.row()
+        row.prop(context.scene, "pixel_large_image_mode")
         row = layout.row()
         row.prop(context.scene, "pixel_object_type")
         layout.separator()
@@ -76,6 +84,11 @@ class pixelMaker(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
     cyclesMaterialMap = dict()
     internalMaterialMap = dict()
+    
+    @classmethod
+    def poll(cls, context):
+        if context.scene.pixel_img_path != "":
+            return True
     
     def execute(self, context):        
         importedImage = context.scene.pixel_img_path
@@ -271,6 +284,7 @@ def register():
     bpy.utils.register_class(pixelMaker)
     bpy.utils.register_class(pixelMakerPanel)
     bpy.types.Scene.pixel_join_cubes = bpy.props.BoolProperty(name = "Join Objects", description = "Join the cubes?", default = False)
+    bpy.types.Scene.pixel_large_image_mode = bpy.props.BoolProperty(name = "Large Image Mode", description = "Use images larger than 100x100 pixels", default = False) 
     bpy.types.Scene.pixel_object_type = bpy.props.EnumProperty(name = "Object", items = [("cube", "Cube", "Make it a cube"), ("cylinder", "Cylinder", "Make it a default cylinder"), ("cylinder_6", "Cylinder 6 Vertices", "Make it a 6 vertex cylinder"), ("cylinder_8", "Cylinder 8 Vertices", "Make it an 8 vertex cylinder")], default = "cube")
     bpy.types.Scene.pixel_color_height = bpy.props.BoolProperty(name = "Color Height Mapping", description = "Convert pixel color to height", default = False)
     bpy.types.Scene.pixel_color_height_amount = bpy.props.IntProperty(name = "Amount", description = "How much to effect the height based on color", default = 2, min = 1, max = 16)
@@ -287,3 +301,6 @@ def unregister():
     del bpy.types.Scene.pixel_color_height_amount
     del bpy.types.Scene.pixel_z_var
     del bpy.types.Scene.pixel_img_path
+    
+if __name__ == "__main__":
+    register()
