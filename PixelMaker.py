@@ -95,7 +95,8 @@ class pixelMaker(bpy.types.Operator):
         variation = context.scene.pixel_z_var
         colorMapping = context.scene.pixel_color_height
         colorAmount = context.scene.pixel_color_height_amount
-        joinCubes = context.scene.pixel_join_cubes        
+        joinCubes = context.scene.pixel_join_cubes
+        large = context.scene.pixel_large_image_mode
     
         # Create an object to start from
         if(context.scene.pixel_object_type == 'cube'):
@@ -115,6 +116,22 @@ class pixelMaker(bpy.types.Operator):
         ob = bpy.context.object
         
         def large_images(path):
+<<<<<<< HEAD
+=======
+            pass
+            
+        def create_chunk(start_x, start_y, size):            
+            objects = []
+            
+            for y in range(start_y, start_y + size):
+                for x in range(start_x, start_x + size):
+                    objects.append(create_cube(x, y))
+            
+            # Make sure only the new cubes are selected
+            bpy.ops.mesh.select_all(action='TOGGLE')
+            for object in obs:
+                object.select = True
+>>>>>>> origin/pixel-maker-large
             
         
         def setup(path):                        
@@ -128,6 +145,7 @@ class pixelMaker(bpy.types.Operator):
             height = image.size[1]
             numberPix = len(image.pixels)
             
+<<<<<<< HEAD
             # Loops through the width and height of the image            
             for y in range(0, height):
                 for x in range(0, width):
@@ -146,58 +164,81 @@ class pixelMaker(bpy.types.Operator):
             for ob in obs:
                 bpy.context.scene.objects.link(ob)
             bpy.context.scene.update()
-            
-            bpy.ops.object.select_all(action = 'DESELECT')
-            bpy.data.objects[originalObject].select = True
-            bpy.ops.object.delete()
-            
-            if joinCubes:
+=======
+            if large:
+                large_images(path)
+            else:
+                print('debug')
+                # Loops through the width and height of the image            
+                for y in range(0, height):
+                    for x in range(0, width):
+                        currentCube = (y * width) + x
+                        color = []
+                        
+                        # Gets the RGBA values for that pixel
+                        for colorRGBA in range(0, 4):
+                            RGBA = (currentCube * 4) + colorRGBA
+                            color.append(pixels[RGBA])
+                        
+                        # Calls the createCubes Function with information from the loops and pixel color
+                        createCubes(x * 2, y * 2, color)
+                
+                # This links all the objects that were created to the scene.           
                 for ob in obs:
-                    name = ob.name
-                    bpy.data.objects[name].select = True
-                
-                bpy.context.scene.objects.active = obs[0]
-                
-                bpy.ops.object.join()
-                bpy.ops.object.editmode_toggle()
-                bpy.ops.mesh.select_all(action='TOGGLE')
+                    bpy.context.scene.objects.link(ob)
+                bpy.context.scene.update()
+>>>>>>> origin/pixel-maker-large
+            
+                bpy.ops.object.select_all(action = 'DESELECT')
+                bpy.data.objects[originalObject].select = True
+                bpy.ops.object.delete()
+            
+                if joinCubes:
+                    for ob in obs:
+                        ob.select = True
+                    
+                    bpy.context.scene.objects.active = obs[0]
+                    
+                    bpy.ops.object.join()
+                    bpy.ops.object.editmode_toggle()
+                    bpy.ops.mesh.select_all(action='TOGGLE')
 
-                TOL = 0.05
+                    TOL = 0.05
 
-                obj = bpy.context.active_object
-                mesh = obj.data
-                bm = bmesh.from_edit_mesh(mesh)
+                    obj = bpy.context.active_object
+                    mesh = obj.data
+                    bm = bmesh.from_edit_mesh(mesh)
 
-                faces = [(face.calc_center_median(), face) 
-                            for face in bm.faces]
+                    faces = [(face.calc_center_median(), face) 
+                                for face in bm.faces]
 
-                #yay, key instead of cmp... 
-                #no tolerance, precision problems -> round
-                faces.sort(key=lambda t: round(t[0].x, 1))
-                faces.sort(key=lambda t: round(t[0].y, 1)) 
-                faces.sort(key=lambda t: round(t[0].z, 1)) 
+                    #yay, key instead of cmp... 
+                    #no tolerance, precision problems -> round
+                    faces.sort(key=lambda t: round(t[0].x, 1))
+                    faces.sort(key=lambda t: round(t[0].y, 1)) 
+                    faces.sort(key=lambda t: round(t[0].z, 1)) 
 
-                #find double faces
-                for index in range(1, len(faces)):
-                    prev = faces[index - 1]
-                    current = faces[index]
-                    if all(abs(prev[0][j] - current[0][j]) < TOL for j in range(3)):
-                        current[1].select = True
-                        prev[1].select = True
+                    #find double faces
+                    for index in range(1, len(faces)):
+                        prev = faces[index - 1]
+                        current = faces[index]
+                        if all(abs(prev[0][j] - current[0][j]) < TOL for j in range(3)):
+                            current[1].select = True
+                            prev[1].select = True
 
-                bmesh.update_edit_mesh(mesh, False, False)
-                bpy.ops.mesh.delete(type = 'FACE')
-                bpy.ops.mesh.select_all(action='TOGGLE')
-                bpy.ops.mesh.remove_doubles()
-                bpy.ops.transform.resize(value = (1, 1, context.scene.pixel_z_depth))
-                
-                bpy.ops.object.editmode_toggle()
-                
-                bpy.ops.object.origin_set(type='GEOMETRY_ORIGIN')
-                
-                bpy.ops.view3d.snap_cursor_to_center()
+                    bmesh.update_edit_mesh(mesh, False, False)
+                    bpy.ops.mesh.delete(type = 'FACE')
+                    bpy.ops.mesh.select_all(action='TOGGLE')
+                    bpy.ops.mesh.remove_doubles()
+                    bpy.ops.transform.resize(value = (1, 1, context.scene.pixel_z_depth))
+                    
+                    bpy.ops.object.editmode_toggle()
+                    
+                    bpy.ops.object.origin_set(type='GEOMETRY_ORIGIN')
+                    
+                    bpy.ops.view3d.snap_cursor_to_center()
 
-                bpy.ops.view3d.snap_selected_to_cursor(use_offset=False)
+                    bpy.ops.view3d.snap_selected_to_cursor(use_offset=False)
 
         
         def create_cubes(x, y, col):
@@ -206,15 +247,13 @@ class pixelMaker(bpy.types.Operator):
             
             # Checks to see whether or not the pixel is transparent. If not, then it creates a material and creates the cube.
             if a == 1:
-                # This calls the makeMaterial function with the color as a parameter.
+                # Assign material to cube
                 material = makeMaterial(col)            
-                
                 copy = ob.copy()
                 copy.data = ob.data.copy()
                 copy.data.materials.append(material)
                 
-                # It has a z in the name in order to place all objects at the bottom of the list
-                copy.name = "z.cube"
+                copy.name = "pixel_cube"
                 copy.location.x = x - 1
                 copy.location.y = y - 1
                 copy.location.z = 0
@@ -239,6 +278,7 @@ class pixelMaker(bpy.types.Operator):
                     copy.scale.z = 1
 
                 obs.append(copy)
+                return copy
             
         def makeMaterial(color):
             # This first checks whether it is in Blender Internal or Blender Cycles.
