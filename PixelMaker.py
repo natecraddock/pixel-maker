@@ -113,15 +113,16 @@ class pixelMaker(bpy.types.Operator):
         
         obs = []
         ob = bpy.context.object
-		
-		def large_images(path):
-			
+        
+        def large_images(path):
+            
         
         def setup(path):                        
             # Load the image from the users chosen file path into Blender. Also assign to a variable.
             image = bpy.data.images.load(path)
             
             # Accessing some data from the chosen image
+            # Gets all of the pixel values (RGBA) in a list
             pixels = image.pixels[:]
             width = image.size[0]
             height = image.size[1]
@@ -134,12 +135,12 @@ class pixelMaker(bpy.types.Operator):
                     color = []
                     
                     # Gets the RGBA values for that pixel
-                    for colorRGBA in range(0, 4):
-                        RGBA = (currentCube * 4) + colorRGBA
-                        color.append(pixels[RGBA])
+                    for i in range(0, 4):
+                        value = (currentCube * 4) + i
+                        color.append(pixels[value])
                     
-                    # Calls the createCubes Function with information from the loops and pixel color
-                    createCubes(x * 2, y * 2, color)
+                    # Calls the create_cubes Function with information from the loops and pixel color
+                    create_cubes(x * 2, y * 2, color)
             
             # This links all the objects that were created to the scene.           
             for ob in obs:
@@ -199,7 +200,7 @@ class pixelMaker(bpy.types.Operator):
                 bpy.ops.view3d.snap_selected_to_cursor(use_offset=False)
 
         
-        def createCubes(x, y, col):
+        def create_cubes(x, y, col):
             # Sets the alpha variable to the alpha of the color.
             r, g, b, a = col
             
