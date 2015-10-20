@@ -1,7 +1,6 @@
-Installation
+#Pixel Maker
 
-Click the Download ZIP button that is located on the right.  Extract the PixelMaker.py file from the archive.
-Import into Blender just like you would a normal Addon.
+##[Click Here to download](https://raw.githubusercontent.com/natecraddock/pixel-maker/master/PixelMaker.py)
 
 Select an image to use with the script.  
 I recommend an image less than 100x100, because with 10,000 objects, Blender gets sluggish and my script starts to slow down because of that.
@@ -24,4 +23,4 @@ This randomizes the height of each object.
 
 Then click run!
 
-If you have found a bug, please report it at: http://goo.gl/forms/KWeODjTGsQ
+If you have found a bug, please create an issue!
