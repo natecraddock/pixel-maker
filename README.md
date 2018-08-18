@@ -1,6 +1,6 @@
-#Pixel Maker
+# Pixel Maker
 
-##[Click Here to download](https://raw.githubusercontent.com/natecraddock/pixel-maker/master/PixelMaker.py)
+## [Click Here to download](https://raw.githubusercontent.com/natecraddock/pixel-maker/master/PixelMaker.py)
 
 Select an image to use with the script.  
 I recommend an image less than 100x100, because with 10,000 objects, Blender gets sluggish and my script starts to slow down because of that.
